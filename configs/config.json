@@ -1,0 +1,14 @@
+{
+  "0": {"name": "Vanilla",
+    "status": true,
+    "launch": "commandString",
+    "wd": "working directory",
+    "icon": "pathToIcon"
+  },
+  "1": {"name": "Forge",
+    "status": true,
+    "launch": "commandString",
+    "wd": "working directory",
+    "icon": "pathToIcon"
+  }
+}
