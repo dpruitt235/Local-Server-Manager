@@ -10,8 +10,18 @@ from flask import Flask, render_template, url_for, request
 
 # Global Vars
 app = Flask(__name__)
-owd = None
+owd = os.getcwd()
 processArray = []
+mcVanillaProcess = None
+mcForgeProcess = None
+configData = None
+
+
+class ServerInstances:
+    def __init__(self, config):
+        self.m_Process = None
+        self.m_Config_Data = config
+        self.m_Active = False
 
 
 @app.route("/", methods=['POST', 'GET'])
@@ -27,23 +37,20 @@ def index():
 @app.route("/update")
 def update():
     update_data = getRamInfo()
-    update_data.update(getMcStatus())
+    update_data["servers"] = getServerStatus()
     return flask.jsonify(update_data)
 
 
 # Helper Functions
-
 def handleMcStart(mc_data):
-    mcProcess = None
+    global processArray
+    m_process = processArray[mc_data['srv']]
+
     if mc_data['msg'] == "stop":
-        stopMc(mc_data)
+        stopServerProcesses(mc_data['srv'])
     else:
         # Start Server
-        # todo Rewrite to take in any number of servers
-        if mc_data['srv'] == 0:
-            runMcVanillia()
-        else:
-            runMcForge()
+        startServerProcesses(mc_data['srv'])
 
 
 def getRamInfo():
@@ -58,12 +65,9 @@ def getRamInfo():
     return ramInfo
 
 
-def getMcStatus():
-    serverStatus = {
-        "vanillia": getMcVanilliaStatus(),
-        "forge": getMcForgeStatus()
-    }
-    return serverStatus
+def getServerStatus():
+    global processArray
+    return {str(i): processArray[i].m_Active for i in range(0, len(processArray))}
 
 
 def getAmountOfRamTotal():
@@ -81,62 +85,54 @@ def getAmountOfRamUsed():
     return round(memory_Bytes_Used / 1073741824, 2)
 
 
-def getMcVanilliaStatus():
-    global mcVanilliaProcess
-    return mcVanilliaProcess is not None
+def getProcessStatus(m_pass_data):
+    global processArray
+    return processArray[m_pass_data].m_Process is not None
 
 
-def getMcForgeStatus():
-    global mcForgeProcess
-    return mcForgeProcess is not None
+def startServerProcesses(m_pass_data):
+    global processArray
+    mProcess = processArray[m_pass_data]
 
-
-# Todo rewrite to dynamically take in amount of servers
-def runMcVanillia():
-    global mcVanilliaProcess
-    if mcVanilliaProcess is not None:
-        return
-    executable = 'java -Xms4G -Xmx4G -jar E:\\MinecraftTest\\server\\server.jar'
-    os.chdir("E:\\MinecraftTest\\server\\")
-    mcVanilliaProcess = subprocess.Popen(executable, stdin=subprocess.PIPE)
+    os.chdir(mProcess.m_Config_Data['wd'])
+    processArray[m_pass_data].m_Process = subprocess.Popen(mProcess.m_Config_Data['launch'], stdin=subprocess.PIPE)
     os.chdir(owd)
+    mProcess.m_Active = True
 
 
-def runMcForge():
-    global mcForgeProcess
-    if mcForgeProcess is not None:
+def stopServerProcesses(m_pass_data):
+    global processArray
+    mProcess = processArray[m_pass_data]
+
+    if mProcess is None:
         return
-    executable = 'java -Xms4G -Xmx4G -jar pathToServerJar'
-    os.chdir('pathToServerFolder')
-    mcForgeProcess = subprocess.Popen(executable, stdin=subprocess.PIPE)
-    os.chdir(owd)
-
-
-def stopMc(data):
-    global mcVanilliaProcess
-    global mcForgeProcess
-    mcProcess = None
-    if data['srv'] == 0:
-        mcProcess = mcVanilliaProcess
-    else:
-        mcProcess = mcForgeProcess
-    if mcProcess is None:
-        return
-    mcProcess.stdin.write("stop\r\n".encode())
-    mcProcess.stdin.flush()
-    mcProcess = None # todo This is not clearing the original process. Maybe do rewrite now?
+    if mProcess.m_Config_Data['stopCommandsFlag']:
+        mProcess.m_Process.stdin.write(mProcess.m_Config_Data['stopCommand'].encode())
+        mProcess.stdin.flush()
+    mProcess.m_Active = False
+    mProcess.m_Process = None
 
 
 def readInConfig():
+    global processArray
+    global configData
     data = None
     with open("configs/config.json") as file:
         data = file.read()
     configData = json.loads(data)
-    print(configData['0'])
+
+    # Check if all paths are valid
+    for i in range(len(configData)):
+        temp_data = configData[str(i)]
+        processArray.append(ServerInstances(temp_data))
+
+        if not temp_data['status']:  # todo Remove this as a temp check to get around Status set to False Data
+            continue
+
+        if not os.path.isdir(temp_data['wd']):
+            raise Exception(temp_data['name'] + ": wd is not set as a valid directory. \"" + temp_data['wd'] + "\"")
 
 
 if __name__ == '__main__':
     readInConfig()
-    exit()
-    owd = os.getcwd()
-    app.run()
+    app.run(host='192.168.0.55', port='80')

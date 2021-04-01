@@ -1,12 +1,12 @@
 {
   "0": {"name": "Vanilla",
     "status": true,
-    "launch": "commandString",
-    "wd": "working directory",
+    "launch": "java -Xmx4G -jar server.jar --nogui",
+    "wd": "E:\\MinecraftTest\\server",
     "icon": "pathToIcon"
   },
   "1": {"name": "Forge",
-    "status": true,
+    "status": false,
     "launch": "commandString",
     "wd": "working directory",
     "icon": "pathToIcon"

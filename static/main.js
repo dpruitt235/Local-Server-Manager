@@ -1,4 +1,9 @@
+var serverInfoDefaultHolder;
+
 $(document).ready(function(){
+    serverInfoDefaultHolder = $('#serverClass').clone();
+    serverInfoDefaultHolder.removeAttr('hidden');
+    console.log(serverInfoDefaultHolder);
     var w = new Worker(updateLoop()); 
 });
 
@@ -39,6 +44,12 @@ function updateInfo(){
             $('#ramUsed').html(data.ramUsed);
             $('#ramTotal').html(data.ramTotal);
             $('#updateTime').html(data.time);
+
+            var serverData = data.servers
+            for(var i = 0; i < Object.keys(serverData).length; i++){
+                // todo for each element, create a Server tag instance. Add it after the hidden element.
+            }
+
             if (data.vanillia){
                 $('#vMC').html('&#128994'); // Green
             }else{
