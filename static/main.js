@@ -12,14 +12,14 @@ function updateLoop(){
     setTimeout("updateLoop()", 3000);
 }
 
-function sendStartCommand(num){
+function sendStart(num){
     var info = {msg: 'start', srv: num};
     var test = JSON.stringify(info);
     sendPost(test);
     $('#vMC').html('&#128993'); // Yellow
 }
 
-function sendStopCommand(num){
+function sendStop(num){
     var info = {msg: 'stop', srv: num};
     var test = JSON.stringify(info);
     sendPost(test);

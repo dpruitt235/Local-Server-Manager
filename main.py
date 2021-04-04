@@ -31,7 +31,9 @@ def index():
         handleMcStart(post_data)
         return 'OK'
     else:
-        return render_template("index.html")
+        global processArray
+        return render_template("index_revision.html", servers=processArray, server_number=0, active=True,
+                               image_source="minecraft-vanilla.jpg", server_name="Minecraft", server_text="A minecraft Server")
 
 
 @app.route("/update")
