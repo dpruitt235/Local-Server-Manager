@@ -5,15 +5,71 @@
     <title>Server Manager</title>
     <meta name="description" content="AoS server Manager">
     <meta name="keywords" content="yep">
-    <script src="{{ url_for('static', filename = 'main.js') }}"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <script src="{{ url_for('static', filename = 'main.js') }}"></script>
 </head>
 
 <body>
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+        <a class="navbar-brand" href="#">Page Title Here</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item active"><a class="nav-link" href="#">Sub-Page </a></li>
+                <li class="nav-item"><a class="nav-link" href="#">Sub-Page </a></li>
+            </ul>
+        </div>
+        {% if logged_in == False %}
+        <button class="d-inline mr-sm-2 btn btn-light btn-sm" onclick="window.location.href='/login'">Login</button>
+        {% else %}
+        <button class="d-inline mr-sm-2 btn btn-light btn-sm" onclick="window.location.href='/logout'">Logout</button>
+        {% endif %}
+    </nav>
+    <main role="main">
+        <div class="jumbotron">
+            <div class="container">
+                <h1 class="display-2">Server Manager</h1>
+            </div>
+        </div>
+
+        <div class="container">
+            {# This produces the server cards based on all servers in the list #}
+            <div class="row">
+                {% for server in servers: %}
+                <div class="col-12 col-sm-6 col-lg-4">
+                    {% if active == True: %}
+                    <div id="{{ server_number }}" class="card border-success" style="width: 18rem;">
+                    {% else %}
+                    <div id="{{ server_number }}" class="card border-danger" style="width: 18rem;">
+                    {% endif %}
+
+                        <img class="card-img-top" src="{{ url_for('static', filename = 'images/' + image_source) }}" alt="Card image cap">
+                        <div class="card-body">
+                          <h5 class="card-title">{{ server_name }}</h5>
+                          <p class="card-text">{{ server_text }}</p>
+                          {% if active == True: %}
+                          <button class="btn btn-success disabled" onclick="sendStart({{ server_number }})"> Start </button>
+                          <button class="btn btn-danger" onclick="sendStop({{ server_number }})" > Stop </button>
+                          {% else %}
+                          <button class="btn btn-success" onclick="sendStart({{ server_number }})"> Start </button>
+                          <button class="btn btn-danger disabled" onclick="sendStop({{ server_number }})" > Stop </button>
+                          {% endif %}
+                        </div>
+                    </div>
+                </div><br>
+                {% endfor %}
+            </div>
+        </div>
+
+    </main>
+    <footer class="container">
+
+    </footer>
+<!--
 <button class="d-inline float-right btn btn-light btn-sm">Login</button>
 <div class="container">
     <div class="row">
@@ -21,39 +77,16 @@
             <h1 class="text-center">Server Manager</h1>
         </div>
     </div>
-    <!--<div class="text-center"> todo get this lined up with center while fitting with rows
+    <div class="text-center"> todo get this lined up with center while fitting with rows
         <h1 class="d-inline">Server Manager</h1> todo add spacing between header and cards
-    </div>-->
-
-    {# This produces the server cards based on all servers in the list #}
-    <div class="row">
-        {% for server in servers: %}
-        <div class="col-12 col-sm-6 col-lg-4">
-            {% if active == True: %}
-            <div id="{{ server_number }}" class="card border-success" style="width: 18rem;">
-            {% else %}
-            <div id="{{ server_number }}" class="card border-danger" style="width: 18rem;">
-            {% endif %}
-
-                <img class="card-img-top" src="{{ url_for('static', filename = 'images/' + image_source) }}" alt="Card image cap">
-                <div class="card-body">
-                <h5 class="card-title">{{ server_name }}</h5>
-                <p class="card-text">{{ server_text }}</p>
-                  {% if active == True: %}
-                  <button class="btn btn-success disabled" onclick="sendStart({{ server_number }})"> Start </button>
-                  <button class="btn btn-danger" onclick="sendStop({{ server_number }})" > Stop </button>
-                  {% else %}
-                  <button class="btn btn-success" onclick="sendStart({{ server_number }})"> Start </button>
-                  <button class="btn btn-danger disabled" onclick="sendStop({{ server_number }})" > Stop </button>
-                  {% endif %}
-                </div>
-            </div>
-        </div>
-        {% endfor %}
     </div>
 
 
+
+
 </div>
+-->
+
 </body>
 
 </html>
